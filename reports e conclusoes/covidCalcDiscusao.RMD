@@ -1,0 +1,111 @@
+---
+title: Disciplina IAED UNESP - Pesquisa referente aos casos de Covid-19 no município
+  de Bauru - SP
+author: "Felipe Modena"
+date: "19/02/2021"
+output:
+  html_document:
+    df_print: paged
+    word_document: default
+    pdf_document: default
+  pdf_document: default
+```
+## 1. Introdução
+
+  O presente trabalho tem por objetivo analisar o impacto que a pandemia no coronavírus (COVID-19) teve na cidade de Bauru - SP.
+
+  
+
+  
+  Os dados utilziados para pesquisa foram obtidos por reportagens ao longo de 2020 e 2021 no Jornal da Cidade durante esse tempo
+
+```{r ler-arquivos, echo=FALSE}
+##O pacote readxl facilita a extração de dados do Excel.
+#Não possui dependências externas sendo fácil de instalar e usar em todos os sistemas operacionais.
+if (!require(readxl)) install.packages("readxl")
+# Lendo a planilha para carregar no R.
+df.mortes <- read_excel("./dados/covid_19_bauru_mortes.xlsx")
+#head(df.mortes) 
+
+df.geral <- read_excel("./dados/covid_19_bauru_casos_geral.xlsx")
+#head(df.geral) 
+```
+
+## 2. Análise Estatística 
+
+  O gráfico abaixo refere-se a quantidade de óbitos de acordo com o gênero:
+
+```{r genero, echo=FALSE}
+#Plotar sexo dos óbtitos, excluindo os casos com NAN ou NA
+temp.sexo <- df.mortes$sexo[!is.na(df.mortes$sexo)]
+pct.sexo = round(unname(table(temp.sexo)) / sum(unname(table(temp.sexo)))*100,0)
+pct.sexo = paste0(pct.sexo, "%")
+
+graph.sex <- barplot(table(temp.sexo), main = "Gráfico 1. Gênero",
+        ylab = "Número de Óbitos", ylim = c(0,sum(unname(table(temp.sexo)))),
+        #legend.text = pct.sexo,
+        names.arg = c("Feminino", "Masculino"))
+text(x = graph.sex, y = table(temp.sexo), label = pct.sexo, pos = 3, cex = 1.25, col = "purple")
+axis(1, at=graph.sex, labels=table(temp.sexo), tick=F, las=1, line=-6.5, cex.axis=1.25)
+```
+
+
+Percebe-se um numero de óbitos pelo coronavírus, em relação a genero, para o gênero masculino, de 57% dos casos.
+  
+  
+```{r hospitalizacao, echo=F}
+temp.hosp <- df.mortes$tipo_hosp[!is.na(df.mortes$tipo_hosp)]
+pct.hosp = round(unname(table(temp.hosp)) / sum(unname(table(temp.hosp)))*100,0)
+
+pct.hosp = paste0(pct.hosp, "%")
+```
+
+
+  Temos em seguida os gráficos 2 e 3 que dizem respeito a hospitalização, se foi de forma pública ou privada, chegamos a conclusão de que os resultados ficam bem divididos, ficando a frente hospitalização privada com 51%.
+  
+
+```{r hospitalizacao_1, echo=F}
+
+graph.hosp<- barplot(table(temp.hosp), main = "Gráfico 2. Tipo de Hospitalização",
+                     ylab = "Número de Óbitos", ylim = c(0,sum(unname(table(temp.hosp)))),
+                     #legend.text = pct.sexo,
+                     names.arg = c("Privado", "Público"))
+text(x = graph.hosp, y = table(temp.hosp), label = pct.hosp, pos = 3, cex = 1.25, col = "purple")
+axis(1, at=graph.hosp, labels=table(temp.hosp), tick=F, las=1, line=-4.5, cex.axis=1.25)
+
+graph.hosp.pie<-pie(table(temp.hosp), main = "Gráfico 3. Tipo de Hospitalização",
+                    edges = 200, radius = 1.0,
+                    clockwise = T, 
+                    density = NULL, angle = 90, col = NULL)
+```
+
+
+  Por último foram analisados os óbitos por faixa etária e sua distribuição, conforme os gráfico 4 e 5:
+  
+```{r idade, echo=F}
+  temp.idade <- df.mortes$idade[!is.na(df.mortes$idade)]
+
+idade.tb <- table(temp.idade)
+#cbind("f" = idade.tb)
+
+#cbind("f" = addmargins(idade.tb))
+
+maior.freq.idade = max(idade.tb)
+
+#round(cbind("fr" = prop.table(idade.tb))*100,1)
+
+#cbind("fr" = addmargins(prop.table(idade.tb)))
+
+# summary(temp.idade)
+ 
+boxplot(temp.idade, horizontal=T, xlab="Faixa etária", main = "Gráfico 4. Distribuição dos óbitos por idade")
+
+graph.age <- barplot(table(temp.idade), 
+                     main = "Gráfico 5. Faixa etária dos óbitos",
+                     ylab = "Número de óbitos",
+                     xlab = "Idade dos pacientes",
+                     ylim = c(0,maior.freq.idade + 5))
+
+```
+  
+  Observa-se por fim que, a maioria dos óbitos pela doença se concentram na faixa de 60 a 80 anos.
